@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Character Matching</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+        <style>
+            
+        </style>
+    </head>
+    <body ng-app="CharacterMatchingApp" ng-controller="CharacterMatchingController">
+        <div>
+            <div>
+                Guesses Left :: {{guesses}}
+            </div>
+            <div>
+                Your correct Guesses :: <span ng-repeat = "letter in correctLetterChosen">{{letter}}</span>
+            </div>
+            <div>
+                Your Incorrect Guesses :: <span ng-repeat = "letter in incorrectLetterChosen">{{letter}}</span>
+            </div>
+            <div>
+                You have to guess : {{displayWord}}
+            </div>
+            <div>
+                <div>
+                    <input type="text" name="guess" ng-model="input.letter">
+                    <button ng-click="letterChosen()">Submit</button>
+                    <button ng-click="Restart()">Restart</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            var app = angular.module("CharacterMatchingApp",[]);
+            app.controller("CharacterMatchingController",function($scope,$timeout){
+
+                $scope.words = [
+    "rat", "cats", "bat", "hat", "dog", "apple", "banana", "orange", "elephant", "tiger",
+    "lion", "zebra", "giraffe", "monkey", "snake", "rabbit", "frog", "bird", "fish", "turtle",
+    "horse", "cow", "pig", "sheep", "goat", "chicken", "duck", "penguin", "koala", "panda",
+    "crocodile", "kangaroo", "dolphin", "whale", "shark", "octopus", "squid", "starfish",
+    "jellyfish", "crab", "lobster", "spider", "bee", "ant", "butterfly", "dragonfly", "mosquito",
+    "grasshopper", "cockroach", "ladybug", "beetle", "snail", "slug", "caterpillar", "centipede",
+    "millipede", "earthworm", "leopard", "cheetah", "panther", "rhinoceros", "hippopotamus",
+    "gorilla", "orangutan", "squirrel", "chipmunk", "mouse", "rat", "hamster", "guinea pig",
+    "ferret", "fox", "wolf", "bear", "polar bear", "brown bear", "black bear", "grizzly bear",
+    "koala bear", "panda bear", "penguin", "owl", "eagle", "hawk", "falcon", "vulture", "crow",
+    "raven", "parrot", "macaw", "cockatoo", "budgerigar", "canary", "finch", "sparrow", "woodpecker",
+    "hummingbird", "kiwi", "ostrich", "emu", "peacock", "swan", "flamingo", "pelican", "albatross",
+    "seagull", "duck"
+];
+
+                $scope.incorrectLetterChosen=[];
+                $scope.correctLetterChosen=[];
+                $scope.guesses = 6;
+                $scope.displayWord = '';
+                $scope.input = {
+                    letter : ''
+                }
+
+                var selectRandomWord = function(){
+                    var index = Math.floor(Math.random()*$scope.words.length);
+                    return $scope.words[index];
+                }
+
+                var newGame = function(){
+            
+                    $scope.incorrectLetterChosen = [];
+                    $scope.correctLetterChosen=[];
+                    $scope.guesses = 6;
+                    $scope.displayWord = '';
+
+                    selectedWord = selectRandomWord();
+                    console.log(selectedWord);
+                    var tempDisplayWord = '';
+                    for(var i =0;i<selectedWord.length;i++){
+                        tempDisplayWord+='*';
+                    }
+                    $scope.displayWord = tempDisplayWord;
+                }
+
+                $scope.letterChosen = function(){
+                    if ($scope.input.letter.length === 1 && /^[a-zA-Z]$/.test($scope.input.letter)) {
+                    for (let i = 0; i < $scope.correctLetterChosen.length; i++) {
+                        if($scope.correctLetterChosen[i].toLowerCase()==$scope.input.letter.toLowerCase())
+                        {
+                            $scope.input.letter = "";
+                            return;
+                        }    
+                    }
+                    for (let i = 0; i < $scope.incorrectLetterChosen.length; i++) {
+                        if($scope.incorrectLetterChosen[i].toLowerCase()==$scope.input.letter.toLowerCase())
+                        {
+                            $scope.input.letter = "";
+                            return;
+                        }    
+                    }
+
+
+                    var correct = false;
+                    for (let i = 0; i < selectedWord.length; i++) {
+                        if(selectedWord[i].toLowerCase()==$scope.input.letter.toLowerCase()){
+                            $scope.displayWord = $scope.displayWord.slice(0, i) + $scope.input.letter.toLowerCase() + $scope.displayWord.slice(i + 1);
+
+                            correct = true;                            
+                        }
+                        
+                    }
+                    if(correct){
+                        $scope.correctLetterChosen.push($scope.input.letter.toLowerCase());
+                    }
+                    else{
+                        $scope.guesses--;
+                        $scope.incorrectLetterChosen.push($scope.input.letter.toLowerCase());
+                        if($scope.guesses==0){
+                            alert("you lost !!\nPlease wait to restart....");
+                            $timeout(function(){
+                                newGame();
+                            },500);
+                        }
+                        if($scope.displayWord.indexOf("*")==-1){
+                            alert("Hurrah you won !!\n Please wait to restart....");
+                            $timeout(function(){
+                                newGame();
+                            },500);
+                        }
+                    }
+                }
+                else{
+                    alert("please enter only one character !!");
+                }
+
+                    $scope.input.letter = "";
+                }
+                newGame();
+                $scope.Restart = function(){
+                    $timeout(function(){
+                                newGame();
+                            });
+                    $scope.refreshPage = function() {
+                        $window.location.reload();
+                        };
+                }
+            });
+        </script>
+    </body>
+</html>
